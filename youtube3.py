@@ -42,11 +42,12 @@ RETRIABLE_STATUS_CODES = [500, 502, 503, 504]
 #   https://developers.google.com/youtube/v3/guides/authentication
 # For more information about the client_secrets.json file format, see:
 #   https://developers.google.com/api-client-library/python/guide/aaa_client_secrets
-CLIENT_SECRETS_FILE = "client_secret.json"
+CLIENT_SECRETS_FILE = "secrets/client_secret.json"
 
 # This OAuth 2.0 access scope allows an application to upload files to the
 # authenticated user's YouTube channel, but doesn't allow other types of access.
-YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+#YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+YOUTUBE_UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.force-ssl"
 YOUTUBE_API_SERVICE_NAME = "youtube"
 YOUTUBE_API_VERSION = "v3"
 
@@ -135,6 +136,7 @@ def resumable_upload(insert_request):
       if response is not None:
         if 'id' in response:
           print ("Video id '%s' was successfully uploaded." % response['id'])
+          change_status(response['id'])
         else:
           exit("The upload failed with an unexpected response: %s" % response)
     except HttpError as e:
@@ -156,6 +158,28 @@ def resumable_upload(insert_request):
       sleep_seconds = random.random() * max_sleep
       print ("Sleeping %f seconds and then retrying..." % sleep_seconds)
       time.sleep(sleep_seconds)
+
+def change_status(id):
+  video_id = id
+  # Fazer uma solicitação para obter as configurações atuais do vídeo
+  video_response = youtube.videos().list(part='status', id=video_id).execute()
+  # Obter o objeto de status do vídeo
+  video_status = video_response['items'][0]['status']
+  print(f"Status atual do video {video_status}")
+  # Alterar a privacidade para 'public'
+  video_status['privacyStatus'] = 'public'
+
+  # Fazer uma solicitação PATCH para atualizar as configurações do vídeo
+  update_response = youtube.videos().update(
+      part='status',
+      body={
+          'id': video_id,
+          'status': video_status
+      }
+  ).execute()
+
+  print(f"Status de privacidade atualizado: {update_response['status']['privacyStatus']}")
+
 
 if __name__ == '__main__':
   argparser.add_argument("--file", required=True, help="Video file to upload")
