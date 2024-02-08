@@ -203,3 +203,9 @@ if __name__ == '__main__':
     initialize_upload(youtube, args)
   except HttpError as e:
     print ("An HTTP error %d occurred:\n%s" % (e.resp.status, e.content))
+
+
+    """
+    Exemplo de comando para rodar:
+    python youtube3.py  --file="videos/005.mp4" --title="Summer vacation in California" --description="Santa Cruz" --keywords="Santa Cruz" --category="22" --privacyStatus="private"
+    """
