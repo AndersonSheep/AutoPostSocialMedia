@@ -33,14 +33,14 @@ def create_text_image(text, heart, font_size=30, font_path=None):
     return image
 
 # Nome do arquivo de saída
-output_filename = "video_editado.mp4"
+output_filename = "videos/video_editado.mp4"
 
 # Checar se o arquivo de saída já existe e deletá-lo se necessário
 if os.path.exists(output_filename):
     os.remove(output_filename)
 
 # Carregar o vídeo
-video = VideoFileClip("video1.mp4")
+video = VideoFileClip("videos/video1.mp4")
 
 # Definir o tempo de início do texto (últimos 10 segundos do vídeo)
 inicio_texto = max(0, video.duration - 10)
